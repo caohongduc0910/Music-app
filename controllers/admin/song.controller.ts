@@ -1,4 +1,6 @@
 import { Request, Response } from "express"
+import slug from "slug"
+
 import Song from "../../models/song.model"
 import Topic from "../../models/topic.model"
 import Singer from "../../models/singer.model"
@@ -66,13 +68,6 @@ export const createGet = async (req: Request, res: Response): Promise<void> => {
 
 
 export const createPost = async (req: Request, res: Response): Promise<void> => {
-  // if (req.body.avatar) {
-  //   req.body.avatar = req.body.avatar[0]
-  // }
-
-  // if (req.body.audio) {
-  //   req.body.audio = req.body.audio[0]
-  // }
 
   interface songObject {
     title: string,
@@ -81,21 +76,90 @@ export const createPost = async (req: Request, res: Response): Promise<void> => 
     lyrics: string,
     description: string,
     status: string,
-    avatar: string
+    avatar: string,
+    audio: string,
+    slug: string
   }
 
   const songPost: songObject = {
     title: req.body.title,
     topicID: req.body.topicID,
-    singerID: req.body.singerID,
+    singerID: req.body.singerID,  
     lyrics: req.body.lyrics,
     description: req.body.description,
     status: req.body.status,
-    avatar: req.body.avatar
+    avatar: req.body.avatar,
+    audio: req.body.audio,
+    slug: slug(req.body.title)
   }
 
   const song = new Song(songPost)
   await song.save()
 
   res.redirect(`${prefixAdmin}/songs`)
+}
+
+
+export const editGet = async (req: Request, res: Response): Promise<void> => {
+
+  const songID: string = req.params.id
+
+  const song = await Song.findOne({
+    _id: songID,
+    status: "active",
+    deleted: false,
+  })
+
+  const topics = await Topic.find({
+    status: "active",
+    deleted: false,
+  })
+
+  const singers = await Singer.find({
+    status: "active",
+    deleted: false,
+  })
+
+  res.render("admin/pages/songs/edit.pug", {
+    pageTitle: "Chỉnh sửa bài hát",
+    song: song,
+    topics: topics,
+    singers: singers
+  })
+}
+
+
+export const editPost = async (req: Request, res: Response): Promise<void> => {
+
+  const songID: string = req.params.id
+
+  interface songObject {
+    title: string,
+    topicID: string,
+    singerID: string,
+    lyrics: string,
+    description: string,
+    status: string,
+    avatar: string,
+    audio: string,
+    slug: string
+  }
+
+  const song: songObject = {
+    title: req.body.title,
+    topicID: req.body.topicID,
+    singerID: req.body.singerID,  
+    lyrics: req.body.lyrics,
+    description: req.body.description,
+    status: req.body.status,
+    avatar: req.body.avatar,
+    audio: req.body.audio,
+    slug: slug(req.body.title)
+  }
+
+  await Song.updateOne({
+    _id: songID
+  }, song)
+
+  res.redirect(`${prefixAdmin}/songs/edit/${songID}`)
 }

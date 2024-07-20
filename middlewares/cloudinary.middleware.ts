@@ -4,6 +4,7 @@ import streamifier from "streamifier"
 
 import '../config/cloudinary.config'
 
+
 const streamUpload = (buffer: Buffer): Promise<string> => {
   return new Promise((resolve, reject) => {
     let stream = cloudinary.uploader.upload_stream({ resource_type: 'auto' }, (error, result) => {
@@ -13,7 +14,6 @@ const streamUpload = (buffer: Buffer): Promise<string> => {
         reject(error)
       }
     })
-
     streamifier.createReadStream(buffer).pipe(stream)
   })
 }
@@ -36,20 +36,27 @@ export const uploadSingle = async (req: Request, res: Response, next: NextFuncti
 export const uploadFields = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     for (const key in req.files) {
-      req.body[key] = []
-      const array = req.files[key]
+      req.body[key] = null
+      
+      const array = (req.files as any)[key]
+      console.log(array)
 
-      for (const item of array) {
-        try {
-          const result = await uploadToCloudinary(item.buffer)
-          req.body[key].push(result)
-        } catch (error) {
-          console.log(error)
-        }
+      if(array.length > 0) {
+        const result = await uploadToCloudinary(array[0].buffer)
+        req.body[key] = result
       }
+
+      // for (const item of array) {
+      //   try {
+      //     const result = await uploadToCloudinary(item.buffer)
+      //     req.body[key].push(result)
+      //   } catch (error) {
+      //     console.log(error)
+      //   }
+      // }
     }
   } catch (error) {
     console.log(error)
   }
-  // next()
+  next()
 }

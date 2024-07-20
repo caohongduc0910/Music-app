@@ -3,6 +3,7 @@ import path from "path"
 import databaseConnection from './config/database.config'
 import dotenv from "dotenv"
 import moment from "moment"
+import methodOverride from "method-override"
 
 const app: Express = express()
 
@@ -10,6 +11,8 @@ app.use(express.static('public'))
 
 app.use(express.json())
 app.use(express.urlencoded({extended: true}))
+
+app.use(methodOverride("_method"))
 
 app.set("views", "./views")
 app.set("view engine", "pug")

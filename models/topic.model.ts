@@ -8,7 +8,6 @@ const topicSchema = new Schema(
     status: String,
     slug: {
       type: String,
-      slug: "title",
       unique: true
     },
     deleted: {

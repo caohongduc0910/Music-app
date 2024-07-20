@@ -9,11 +9,13 @@ if (aplayer) {
     container: aplayer,
     autoplay: true,
     volume: 1,
+    lrcType: 1,
     audio: [{
       name: song.title,
       artist: singer.fullName,
-      url: 'https://backend.daca.vn/assets/audios/cat-doi-noi-sau.mp3',
-      cover: song.avatar
+      url: song.audio,
+      cover: song.avatar,
+      lrc: song.lyrics
     }]
   })
 
@@ -104,7 +106,6 @@ if (listFavoriteButton.length > 0) {
 
 //Search box
 const searchBox = document.querySelector('.box-search')
-
 if (searchBox) {
   const inputBox = searchBox.querySelector('input[name="keyword"]')
   searchBox.addEventListener('keyup', () => {

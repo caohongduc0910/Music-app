@@ -1,4 +1,5 @@
 import { Request, Response } from "express"
+
 import Singer from "../../models/singer.model"
 
 export const index = async (req: Request, res: Response): Promise<void> => {

@@ -19,7 +19,6 @@ const songSchema = new Schema(
     status: String,
     slug: {
       type: String,
-      slug: "title",
       unique: true
     },
     listen: {

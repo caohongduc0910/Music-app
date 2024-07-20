@@ -7,7 +7,6 @@ const singerSchema = new Schema(
     status: String,
     slug: {
       type: String,
-      slug: "fullName",
       unique: true
     },
     deleted: {

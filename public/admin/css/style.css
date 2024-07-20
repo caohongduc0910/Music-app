@@ -72,7 +72,8 @@
   }
 }
 
-[show-alert] [close-alert] {
+[show-alert] [close-alert]
+[upload-image] {
   background: #ffffffc4;
   display: inline-block;
   width: 24px;
@@ -83,6 +84,19 @@
   border-radius: 50%;
   cursor: pointer;
 }
+
+.close-preview {
+  background: #b6b0b0c4;
+  display: inline-block;
+  width: 24px;
+  height: 24px;
+  line-height: 24px;
+  text-align: center;
+  font-weight: 600;
+  border-radius: 50%;
+  cursor: pointer;
+}
+
 /* End Show Alert */
 
 /* Image Preview */
@@ -99,3 +113,7 @@
   display: none;
 }
 /* End Image Preview */ 
+
+audio {
+  margin-top: 12px;
+}
