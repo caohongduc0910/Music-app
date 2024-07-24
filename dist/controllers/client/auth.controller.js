@@ -50,7 +50,7 @@ const registerPost = (req, res) => __awaiter(void 0, void 0, void 0, function* (
             newUser = yield newUser.save();
             const token = (0, jwtToken_1.createAccessToken)(newUser.id);
             const subject = "Email xác nhận kích hoạt tài khoản";
-            let link = `http://localhost:3000/auth/confirm?token=${token}`;
+            let link = `https://music-ro0i1p3x2-duc-caos-projects.vercel.app/auth/confirm?token=${token}`;
             const html = `
       <!DOCTYPE html>
       <html lang="en">

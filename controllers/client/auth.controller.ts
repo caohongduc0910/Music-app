@@ -54,7 +54,7 @@ export const registerPost = async (
       const token: string = createAccessToken(newUser.id);
       const subject: string = "Email xác nhận kích hoạt tài khoản";
 
-      let link: string = `http://localhost:3000/auth/confirm?token=${token}`;
+      let link: string = `https://music-ro0i1p3x2-duc-caos-projects.vercel.app/auth/confirm?token=${token}`;
 
       const html: string = `
       <!DOCTYPE html>
