@@ -1,8 +1,9 @@
 import mongoose from 'mongoose'
+import * as ENV from './global.config'
 
 const databaseConnection = async (): Promise<void> => {
   try {
-    await mongoose.connect(process.env.MONGO_URL)
+    await mongoose.connect(ENV.MONGO_URL)
     console.log('Connected successfully to MongoDB')
   }
   catch (error) {

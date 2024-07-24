@@ -10,10 +10,9 @@ const songSchema = new Schema(
     description: String,
     singerID: String,
     topicID: String,
-    like: {
-      type: Number,
-      default: 0
-    },
+    like: [{
+      userID: String,
+    }],
     lyrics: String,
     audio: String,
     status: String,

@@ -7,6 +7,9 @@ import favoriteSongRouter from './favorite-song.route'
 import searchRouter from './search.route'
 
 const router: Router = Router()
+import authToken from "../../middlewares/auth.middleware"
+
+router.use(authToken)
 
 router.use('/auth', authRouter)
 

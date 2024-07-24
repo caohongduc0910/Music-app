@@ -1,0 +1,20 @@
+"use strict";
+var __importDefault = (this && this.__importDefault) || function (mod) {
+    return (mod && mod.__esModule) ? mod : { "default": mod };
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const auth_route_1 = __importDefault(require("./auth.route"));
+const topic_route_1 = __importDefault(require("./topic.route"));
+const song_route_1 = __importDefault(require("./song.route"));
+const favorite_song_route_1 = __importDefault(require("./favorite-song.route"));
+const search_route_1 = __importDefault(require("./search.route"));
+const router = (0, express_1.Router)();
+const auth_middleware_1 = __importDefault(require("../../middlewares/auth.middleware"));
+router.use(auth_middleware_1.default);
+router.use('/auth', auth_route_1.default);
+router.use('/topics', topic_route_1.default);
+router.use('/songs', song_route_1.default);
+router.use('/favorite-songs', favorite_song_route_1.default);
+router.use('/search', search_route_1.default);
+exports.default = router;

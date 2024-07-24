@@ -1,194 +1,225 @@
-import { Request, Response } from "express"
-import Topic from "../../models/topic.model"
-import Song from "../../models/song.model"
-import Singer from "../../models/singer.model"
-import FavoriteSong from "../../models/favorite-song.model"
+import { Request, Response } from "express";
+import Topic from "../../models/topic.model";
+import Song from "../../models/song.model";
+import Singer from "../../models/singer.model";
+import FavoriteSong from "../../models/favorite-song.model";
 
 export const getAll = async (req: Request, res: Response): Promise<void> => {
   const topic = await Topic.findOne({
     status: "active",
     deleted: false,
-    slug: req.params.slugTopic
-  })
+    slug: req.params.slugTopic,
+  });
 
   const songs = await Song.find({
     status: "active",
     deleted: false,
-    topicID: topic.id
-  })
+    topicID: topic.id,
+  });
 
   for (const song of songs) {
     const singerInfo = await Singer.findOne({
       _id: song.singerID,
       status: "active",
-      deleted: false
-    })
+      deleted: false,
+    });
 
     if (singerInfo) {
-      (song as any)["singerInfo"] = singerInfo
-    }
-    else {
-      console.log(`Singer not found for song ID ${song._id}`)
+      (song as any)["singerInfo"] = singerInfo;
+    } else {
+      console.log(`Singer not found for song ID ${song._id}`);
     }
   }
 
   res.render("client/pages/songs/index.pug", {
     pageTitle: topic.title,
-    songs: songs
-  })
-}
-
+    songs: songs,
+  });
+};
 
 export const detail = async (req: Request, res: Response): Promise<void> => {
   try {
-    const slug = req.params.slugSong
+    const slug: string = req.params.slugSong;
+    let userID: string = null;
+
+    if (res.locals.user) {
+      userID = res.locals.user.id;
+    }
 
     const song = await Song.findOne({
       slug: slug,
       status: "active",
-      deleted: false
-    })
+      deleted: false,
+    });
+
+    const items: any = song.like;
+    const userList: string[] = [];
+    let item: any;
+
+    for (item of items) {
+      userList.push(item.userID);
+    }
 
     const topic = await Topic.findOne({
       _id: song.topicID,
       status: "active",
-      deleted: false
-    })
+      deleted: false,
+    });
 
     const singer = await Singer.findOne({
       _id: song.singerID,
       status: "active",
-      deleted: false
-    })
+      deleted: false,
+    });
 
     const favoriteSong = await FavoriteSong.findOne({
+      userID: userID,
       songID: song.id,
-      deleted: false
-    })
+      deleted: false,
+    });
 
     if (favoriteSong) {
-      (song as any)['isFavoriteSong'] = true
+      (song as any)["isFavoriteSong"] = true;
+    } else {
+      (song as any)["isFavoriteSong"] = false;
     }
-    else {
-      (song as any)['isFavoriteSong'] = false
+
+    if (userList.includes(userID)) {
+      (song as any)["isLikeSong"] = true;
+    } else {
+      (song as any)["isLikeSong"] = false;
     }
 
     res.render("client/pages/songs/detail.pug", {
       pageTitle: song.title,
       song: song,
       topic: topic,
-      singer: singer
-    })
+      singer: singer,
+    });
+  } catch (error) {
+    console.log(error);
+    return;
   }
-  catch (error) {
-    console.log(error)
-    return
-  }
-}
-
+};
 
 export const like = async (req: Request, res: Response): Promise<void> => {
   try {
-    const type = req.params.type
-    const songID = req.params.id
+    const type = req.params.type;
+    const songID = req.params.id;
+    let userID: string = null;
 
-    const song = await Song.findOne({
-      _id: songID,
-      deleted: false,
-      status: 'active'
-    })
+    if (res.locals.user) {
+      userID = res.locals.user.id;
 
-    let currentLike: number = song.like
-    type == "yes" ? ++currentLike : --currentLike
+      if (type == "yes") {
+        await Song.updateOne(
+          {
+            _id: songID,
+          },
+          {
+            $push: {
+              like: {
+                userID: userID,
+              },
+            },
+          }
+        );
+      } else {
+        await Song.updateOne(
+          { _id: songID },
+          {
+            $pull: {
+              like: { userID: userID },
+            },
+          }
+        );
+      }
 
-    await Song.updateOne({
-      _id: songID
-    }, {
-      like: currentLike
-    })
+      const song = await Song.findOne({
+        _id: songID,
+        deleted: false,
+        status: "active",
+      });
 
-    res.json({
-      code: 200,
-      currentLike: currentLike
-    })
+      res.json({
+        code: 200,
+        currentLike: song.like.length,
+      });
+    }
+  } catch (error) {
+    console.log(error);
+    return;
   }
-  catch (error) {
-    console.log(error)
-    return
-  }
-}
-
+};
 
 export const favorite = async (req: Request, res: Response): Promise<void> => {
   try {
-    const type = req.params.type
-    const songID = req.params.id
-    console.log(type, songID)
+    const type = req.params.type;
+    const songID = req.params.id;
+    let userID: string = null;
 
-    if (type == 'yes') {
-      const favSong = await FavoriteSong.findOne({
-        songID: songID,
-        deleted: false
-      })
+    if (res.locals.user) {
+      userID = res.locals.user.id;
+    }
 
+    const favSong = await FavoriteSong.findOne({
+      userID: userID,
+      songID: songID,
+      deleted: false,
+    });
+
+    if (type == "yes") {
       if (!favSong) {
         const newFavSong = new FavoriteSong({
-          songID: songID
-        })
-        await newFavSong.save()
-      }
-    }
-    else {
-      const favSong = await FavoriteSong.findOne({
-        songID: songID,
-        deleted: false
-      })
-
-      if (!favSong) {
+          userID: userID,
+          songID: songID,
+        });
+        await newFavSong.save();
         res.json({
-          code: 404
-        })
+          code: 200,
+        });
       }
-      else {
+    } else {
+      if (!favSong) {
+        req.flash("fail", "Lỗi bài hát");
+        res.redirect("back");
+      } else {
         await favSong.deleteOne();
       }
     }
-    res.json({
-      code: 200
-    })
+  } catch (error) {
+    console.log(error);
+    return;
   }
-  catch (error) {
-    console.log(error)
-    return
-  }
-}
-
+};
 
 export const listen = async (req: Request, res: Response): Promise<void> => {
   try {
-    const songID = req.params.id
+    const songID = req.params.id;
 
     const song = await Song.findOne({
       _id: songID,
       deleted: false,
-      status: 'active'
-    })
+      status: "active",
+    });
 
-    let currentListen: number = song.listen + 1
+    let currentListen: number = song.listen + 1;
 
-    await Song.updateOne({
-      _id: songID
-    }, {
-      listen: currentListen
-    })
+    await Song.updateOne(
+      {
+        _id: songID,
+      },
+      {
+        listen: currentListen,
+      }
+    );
 
     res.json({
       code: 200,
-      listen: currentListen
-    })
+      listen: currentListen,
+    });
+  } catch (error) {
+    console.log(error);
+    return;
   }
-  catch (error) {
-    console.log(error)
-    return
-  }
-}
+};

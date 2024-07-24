@@ -1,4 +1,4 @@
-import { Schema, model } from "mongoose"
+import { Schema, model } from "mongoose";
 
 const topicSchema = new Schema(
   {
@@ -8,19 +8,19 @@ const topicSchema = new Schema(
     status: String,
     slug: {
       type: String,
-      unique: true
+      unique: true,
     },
     deleted: {
       type: Boolean,
-      default: false
+      default: false,
     },
-    deletedAt: Date
+    deletedAt: Date,
   },
   {
-    timestamps: true
+    timestamps: true,
   }
 );
 
-const Topic = model("Topic", topicSchema, "topics")
+const Topic = model("Topic", topicSchema, "topics");
 
-export default Topic
+export default Topic;
